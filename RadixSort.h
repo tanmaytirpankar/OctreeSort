@@ -73,6 +73,9 @@ public:
             int x=arr[i].getX();
             int y=arr[i].getY();
             int z=arr[i].getZ();
+            int a=arr[i].getA();
+            int b=arr[i].getB();
+            int c=arr[i].getC();
             cout<<"("<<arr[i].getX()<<","<<arr[i].getY()<<","<<arr[i].getZ()<<"),";
             for (int j = 0; j < num_length; j++) {
                 x=arr[i].getX();
@@ -91,6 +94,25 @@ public:
                 z=z>>num_length-j-1;
                 cout<<z%2;
             }
+            cout<<"\t";
+            for (int j = 0; j < num_length; j++) {
+                a=arr[i].getA();
+                a=a>>num_length-j-1;
+                cout<<a%2;
+            }
+            cout<<",";
+            for (int j = 0; j < num_length; j++) {
+                b=arr[i].getB();
+                b=b>>num_length-j-1;
+                cout<<b%2;
+            }
+            cout<<",";
+            for (int j = 0; j < num_length; j++) {
+                c=arr[i].getC();
+                c=c>>num_length-j-1;
+                cout<<c%2;
+            }
+            cout<<endl;
         }
     }
     void print1()
@@ -222,16 +244,16 @@ public:
         {
             T a,b,c,x;
             x=0;
-            for (int j = 0; j < word_size; j++) {
+            for (int j = word_size-1; j >= 0; j--) {
                 if(lvls%2==1) {
-                    a = arr1[i].getA();
-                    b = arr1[i].getB();
-                    c = arr1[i].getC();
+                    a = arr1[i].getX();
+                    b = arr1[i].getY();
+                    c = arr1[i].getZ();
                 }
                 else {
-                    a = arr[i].getA();
-                    b = arr[i].getB();
-                    c = arr[i].getC();
+                    a = arr[i].getX();
+                    b = arr[i].getY();
+                    c = arr[i].getZ();
                 }
                 a = a >> (shift+j);
                 b = b >> (shift+j);
@@ -259,14 +281,14 @@ public:
         duration = chrono::duration_cast<chrono::microseconds>( t2 - t1 ).count();
 
         //cout<<"The time taken for calculating counts is "<<duration <<" microseconds"<<endl;
-        cout<<"Values in count:"<<endl;
-        for(int i = 0; i < num_threads; i++){
-            for(int j = 0; j < buckets; j++){
-                cout<<count[i][j]<<" ";
-            }
-            cout<<endl;
-
-        }
+//        cout<<"Values in count:"<<endl;
+//        for(int i = 0; i < num_threads; i++){
+//            for(int j = 0; j < buckets; j++){
+//                cout<<count[i][j]<<" ";
+//            }
+//            cout<<endl;
+//
+//        }
         t1 = chrono::high_resolution_clock::now();
         position1[0]=position[0][0]=first;
         for (int buc = 0; buc < buckets; buc++) {
@@ -282,27 +304,27 @@ public:
                 position1[buc+1]=position[0][buc+1]=position[num_threads-1][buc]+count[num_threads-1][buc];
         }
 
-        cout<<"Positions in position at depth "<<lvls<<" is:"<<endl;
-        for(int i = 0; i < num_threads; i++){
-            for(int j = 0; j < buckets; j++){
-                cout<<position[i][j]<<" ";
-            }
-            cout<<endl;
-        }
+//        cout<<"Positions in position at depth "<<lvls<<" is:"<<endl;
+//        for(int i = 0; i < num_threads; i++){
+//            for(int j = 0; j < buckets; j++){
+//                cout<<position[i][j]<<" ";
+//            }
+//            cout<<endl;
+//        }
 #pragma omp parallel for
         for (int i = first; i <= last; i++) {
             T a,b,c,x;
             x=0;
-            for (int j = 0; j < word_size; j++) {
+            for (int j = word_size - 1; j >= 0; j--) {
                 if(lvls%2==1) {
-                    a = arr1[i].getA();
-                    b = arr1[i].getB();
-                    c = arr1[i].getC();
+                    a = arr1[i].getX();
+                    b = arr1[i].getY();
+                    c = arr1[i].getZ();
                 }
                 else {
-                    a = arr[i].getA();
-                    b = arr[i].getB();
-                    c = arr[i].getC();
+                    a = arr[i].getX();
+                    b = arr[i].getY();
+                    c = arr[i].getZ();
                 }
                 a = a >> (shift+j);
                 b = b >> (shift+j);
@@ -340,7 +362,6 @@ public:
 //            print();
 //        else
 //            print1();
-        return;
 #pragma omp parallel for
         for (int i = 0; i < buckets; i++)  {
             int begin=position1[i];
@@ -357,7 +378,7 @@ public:
         int lvls=0;
         //vector<Points<T>> arr1(n);
         Sort(0,num_elements-1,lvls);
-        //print();
+//        print();
         if(check())
             cout<<"List1 is sorted."<<endl;
         else
