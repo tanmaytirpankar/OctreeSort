@@ -18,13 +18,14 @@ using namespace std;
 template <class T>
 class RadixSort {
     vector <Points<T>> arr,arr1;
-    int num_threads, word_size, level;
+    int num_threads, word_size, actual_word_size, level;
     unsigned int num_elements;
 public:
     RadixSort(unsigned int n, int num, int user_word_size)
     {
         num_elements=n;
-        this->word_size=user_word_size*3;
+        this->word_size=user_word_size;
+        actual_word_size=user_word_size*3;
         this->num_threads=num;
 
         /*ifstream in;
@@ -56,8 +57,8 @@ public:
             z=rand();
             arr[i]=arr1[i]=Points<T>(x,y,z);
         }
-        level = (sizeof(arr[0].getX())*24)/word_size;
-        if ((sizeof(arr[0].getX())*24)%word_size!=0)
+        level = (sizeof(arr[0].getX())*8)/word_size;
+        if ((sizeof(arr[0].getX())*8)%word_size!=0)
             level++;
 //        print();
 //        cout<<endl;
@@ -72,9 +73,6 @@ public:
             int x=arr[i].getX();
             int y=arr[i].getY();
             int z=arr[i].getZ();
-            int a=arr[i].getA();
-            int b=arr[i].getB();
-            int c=arr[i].getC();
             cout<<"("<<arr[i].getX()<<","<<arr[i].getY()<<","<<arr[i].getZ()<<"),";
             for (int j = 0; j < num_length; j++) {
                 x=arr[i].getX();
@@ -93,25 +91,6 @@ public:
                 z=z>>num_length-j-1;
                 cout<<z%2;
             }
-            cout<<"\t";
-            for (int j = 0; j < num_length; j++) {
-                a=arr[i].getA();
-                a=a>>num_length-j-1;
-                cout<<a%2;
-            }
-            cout<<",";
-            for (int j = 0; j < num_length; j++) {
-                b=arr[i].getB();
-                b=b>>num_length-j-1;
-                cout<<b%2;
-            }
-            cout<<",";
-            for (int j = 0; j < num_length; j++) {
-                c=arr[i].getC();
-                c=c>>num_length-j-1;
-                cout<<c%2;
-            }
-            cout<<endl;
         }
     }
     void print1()
@@ -134,10 +113,11 @@ public:
             }
             return ;
         }
-        int remainder,shift;
-        int word_section_start_bit = lvls * word_size;
-        int data_type_size = sizeof(arr[0].getX());
-        unsigned int buckets = int(pow(2,word_size));
+        int shift=(sizeof(arr[0].getX())*8)-(lvls+1)*word_size;
+        if(shift < 0)
+            shift=0;
+//        int data_type_size = sizeof(arr[0].getX());
+        unsigned int buckets = int(pow(2,actual_word_size));
         vector<vector<unsigned int>> count(num_threads);
         vector<vector<unsigned int>> position(num_threads);
         for (int l = 0; l < num_threads; l++) {
@@ -157,34 +137,13 @@ public:
         chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
         auto duration = chrono::duration_cast<chrono::microseconds>( t2 - t1 ).count();
 
-        cout <<"The time taken for initialization is "<<duration <<" microseconds"<<endl;
+        //cout <<"The time taken for initialization is "<<duration <<" microseconds"<<endl;
 
         t1 = chrono::high_resolution_clock::now();
-        bool flag1= false,flag2= false,flag3= false;
 
-        if(word_section_start_bit < data_type_size*8) {
-            remainder = (data_type_size*8)%word_size;
-            shift = (data_type_size*8)-(lvls+1)*word_size;
-            if(data_type_size*8 - word_section_start_bit<word_size)
-                flag1=true;
-        }
-        else if(word_section_start_bit < data_type_size*16)
-        {
-            remainder = (data_type_size*16)%word_size;
-            shift = (data_type_size*16)-((lvls+1)*word_size);
-            if(data_type_size*16 - word_section_start_bit<word_size)
-                flag2=true;
-        }
-        else if(word_section_start_bit < data_type_size*24)
-        {
-            remainder = (data_type_size*24)%word_size;
-            shift = (data_type_size*24)-((lvls+1)*word_size);
-            if(data_type_size*24 - word_section_start_bit<word_size)
-                flag3=true;
-        }
-//        cout<<"Remainders: "<<remainder<<","<<remainder<<","<<remainder<<endl;
+
+//        cout<<"Remainders: "<<","<<remainder<<endl;
 //        cout<<"Flags: "<<flag1<<","<<flag2<<","<<flag3<<endl;
-        int mask=int(pow(2,word_size)-1);
 //        cout<<"first: "<<first<<" last: "<<last<<" sizeof(count): "<<count.size()<<" sizeof(count[0])"<<count[0].size()<<endl;
 //        cout<<"                                                                    ";
 
@@ -261,64 +220,33 @@ public:
 #pragma omp parallel for
         for (int i = first; i <= last; i++)
         {
-            T a,b,c;
-            //temp[i-first]=arr[i];
-            if(lvls%2==1) {
-                a = arr1[i].getA();
-                b = arr1[i].getB();
-                c = arr1[i].getC();
+            T a,b,c,x;
+            x=0;
+            for (int j = 0; j < word_size; j++) {
+                if(lvls%2==1) {
+                    a = arr1[i].getA();
+                    b = arr1[i].getB();
+                    c = arr1[i].getC();
+                }
+                else {
+                    a = arr[i].getA();
+                    b = arr[i].getB();
+                    c = arr[i].getC();
+                }
+                a = a >> (shift+j);
+                b = b >> (shift+j);
+                c = c >> (shift+j);
+                a = a & 1;
+                b = b & 1;
+                c = c & 1;
+                x = x << 1;
+                x = x | a;
+                x = x << 1;
+                x = x | b;
+                x = x << 1;
+                x = x | c;
             }
-            else {
-                a = arr[i].getA();
-                b = arr[i].getB();
-                c = arr[i].getC();
-            }
-            if(word_section_start_bit < data_type_size*8) {
-                if(flag1)
-                {
-                    a=a<<(word_size-remainder);
-                    a=a&mask;
-                    b=b>>data_type_size*8-word_size+remainder;
-                    b=b&(int(pow(2,(word_size-remainder))))-1;
-                    a=a|b;
-                }
-                else
-                {
-                    a=a>>shift;
-                    a=a&mask;
-                }
-                count[omp_get_thread_num()][a]++;
-            }
-            else if(word_section_start_bit < data_type_size*16)
-            {
-                if(flag2)
-                {
-                    b=b<<(word_size-remainder);
-                    b=b&mask;
-                    c=c>>data_type_size*8-word_size+remainder;
-                    c=c&(int(pow(2,(word_size-remainder))))-1;
-                    b=b|c;
-                }
-                else
-                {
-                    b=b>>shift;
-                    b=b&mask;
-                }
-                count[omp_get_thread_num()][b]++;
-            }
-            else if(word_section_start_bit < data_type_size*24)
-            {
-                if(flag3)
-                {
-                    c=c&(int(pow(2,(remainder))))-1;
-                }
-                else
-                {
-                    c=c>>shift;
-                    c=c&mask;
-                }
-                count[omp_get_thread_num()][c]++;
-            }
+            count[omp_get_thread_num()][x]++;
 //            x=x>>((level-1)*word_size);
 //            if(remainder!=0)
 //                x=x>>remainder-1;
@@ -330,15 +258,15 @@ public:
         t2 = chrono::high_resolution_clock::now();
         duration = chrono::duration_cast<chrono::microseconds>( t2 - t1 ).count();
 
-        cout<<"The time taken for calculating counts is "<<duration <<" microseconds"<<endl;
-//        cout<<"Values in count:"<<endl;
-//        for(int i = 0; i < num_threads; i++){
-//            for(int j = 0; j < buckets; j++){
-//                cout<<count[i][j]<<" ";
-//            }
-//            cout<<endl;
-//
-//        }
+        //cout<<"The time taken for calculating counts is "<<duration <<" microseconds"<<endl;
+        cout<<"Values in count:"<<endl;
+        for(int i = 0; i < num_threads; i++){
+            for(int j = 0; j < buckets; j++){
+                cout<<count[i][j]<<" ";
+            }
+            cout<<endl;
+
+        }
         t1 = chrono::high_resolution_clock::now();
         position1[0]=position[0][0]=first;
         for (int buc = 0; buc < buckets; buc++) {
@@ -354,80 +282,41 @@ public:
                 position1[buc+1]=position[0][buc+1]=position[num_threads-1][buc]+count[num_threads-1][buc];
         }
 
-//        cout<<"Positions in position at depth "<<lvls<<" is:"<<endl;
-//        for(int i = 0; i < num_threads; i++){
-//            for(int j = 0; j < buckets; j++){
-//                cout<<position[i][j]<<" ";
-//            }
-//            cout<<endl;
-//        }
+        cout<<"Positions in position at depth "<<lvls<<" is:"<<endl;
+        for(int i = 0; i < num_threads; i++){
+            for(int j = 0; j < buckets; j++){
+                cout<<position[i][j]<<" ";
+            }
+            cout<<endl;
+        }
 #pragma omp parallel for
         for (int i = first; i <= last; i++) {
             T a,b,c,x;
-            //temp[i-first]=arr[i];
-            if(lvls%2==1) {
-                a = arr1[i].getA();
-                b = arr1[i].getB();
-                c = arr1[i].getC();
+            x=0;
+            for (int j = 0; j < word_size; j++) {
+                if(lvls%2==1) {
+                    a = arr1[i].getA();
+                    b = arr1[i].getB();
+                    c = arr1[i].getC();
+                }
+                else {
+                    a = arr[i].getA();
+                    b = arr[i].getB();
+                    c = arr[i].getC();
+                }
+                a = a >> (shift+j);
+                b = b >> (shift+j);
+                c = c >> (shift+j);
+                a = a & 1;
+                b = b & 1;
+                c = c & 1;
+                x = x << 1;
+                x = x | a;
+                x = x << 1;
+                x = x | b;
+                x = x << 1;
+                x = x | c;
             }
-            else {
-                a = arr[i].getA();
-                b = arr[i].getB();
-                c = arr[i].getC();
-            }
-            if(word_section_start_bit < data_type_size*8) {
-                if(flag1)
-                {
-                    T y=b;
-                    x=a;
-                    x=x<<(word_size-remainder);
-                    x=x&mask;
-                    y=y>>data_type_size*8-word_size+remainder;
-                    y=y&(int(pow(2,(word_size-remainder))))-1;
-                    x=x|y;
-                }
-                else
-                {
-                    x=a;
-                    x=x>>shift;
-                }
-            }
-            else if(word_section_start_bit < data_type_size*16)
-            {
-                if(flag2)
-                {
-                    T y=c;
-                    x=b;
-                    x=x<<(word_size-remainder);
-                    x=x&mask;
-                    y=y>>data_type_size*8-word_size+remainder;
-                    y=y&(int(pow(2,(word_size-remainder))))-1;
-                    x=x|y;
-                }
-                else
-                {
-                    x=b;
-                    x=x>>shift;
-                }
-            }
-            else if(word_section_start_bit < data_type_size*24)
-            {
-                if(flag3)
-                {
-                    x=c;
-                    x=x&(int(pow(2,(remainder))))-1;
-                }
-                else
-                {
-                    x=c;
-                    x=x>>shift;
-                }
-            }
-//            x=x>>((level-1)*word_size);
-//            if(remainder!=0)
-//                x=x>>remainder-1;
-            x=x&mask;
-//            cout<<x<<"\t";
             if(lvls%2==1)
                 arr[position[omp_get_thread_num()][x]]=arr1[i];
             else
@@ -439,7 +328,7 @@ public:
         t2 = chrono::high_resolution_clock::now();
         duration = chrono::duration_cast<chrono::microseconds>( t2 - t1 ).count();
 
-        cout<<"The time taken for final sorting is "<<duration <<" microseconds"<<endl;
+        //cout<<"The time taken for final sorting is "<<duration <<" microseconds"<<endl;
 
         //cout<<"Recursion number "<<level<<endl;
         //print();
