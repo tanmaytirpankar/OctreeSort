@@ -16,6 +16,7 @@ int main() {
     cin>>num;
     cout << "Enter the word size (preferably 1 to 5): ";
     cin >> user_word_size;
+    omp_set_nested(1);
     RadixSort<unsigned int> *obj=new RadixSort<unsigned int>(n, num, user_word_size);
 //    obj->print();
 //    cout<<endl;

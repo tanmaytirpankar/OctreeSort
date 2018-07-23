@@ -135,6 +135,11 @@ public:
             }
             return ;
         }
+        bool isodd;
+        if(lvls % 2 == 1)
+            isodd = true;
+        else
+            isodd = false;
         int shift=(sizeof(arr[0].getX())*8)-(lvls+1)*word_size;
         if(shift < 0)
             shift=0;
@@ -245,7 +250,7 @@ public:
             T a,b,c,x;
             x=0;
             for (int j = word_size-1; j >= 0; j--) {
-                if(lvls%2==1) {
+                if(isodd) {
                     a = arr1[i].getX();
                     b = arr1[i].getY();
                     c = arr1[i].getZ();
@@ -316,7 +321,7 @@ public:
             T a,b,c,x;
             x=0;
             for (int j = word_size - 1; j >= 0; j--) {
-                if(lvls%2==1) {
+                if(isodd) {
                     a = arr1[i].getX();
                     b = arr1[i].getY();
                     c = arr1[i].getZ();
@@ -339,7 +344,7 @@ public:
                 x = x << 1;
                 x = x | c;
             }
-            if(lvls%2==1)
+            if(isodd)
                 arr[position[omp_get_thread_num()][x]]=arr1[i];
             else
                 arr1[position[omp_get_thread_num()][x]]=arr[i];
@@ -358,7 +363,7 @@ public:
 //                if(lvls==0)
 //                    return;
 
-//        if(lvls%2==1)
+//        if(isodd)
 //            print();
 //        else
 //            print1();
