@@ -174,80 +174,11 @@ public:
 //        cout<<"first: "<<first<<" last: "<<last<<" sizeof(count): "<<count.size()<<" sizeof(count[0])"<<count[0].size()<<endl;
 //        cout<<"                                                                    ";
 
-
-////Original determine the bucket section.
-//#pragma omp parallel for
-//        for (int i = first; i <= last; i++) {
-//            T a,b,c,x;
-//            //temp[i-first]=arr[i];
-//            if(lvls%2==1) {
-//                a = arr1[i].getA();
-//                b = arr1[i].getB();
-//                c = arr1[i].getC();
-//            }
-//            else {
-//                a = arr[i].getA();
-//                b = arr[i].getB();
-//                c = arr[i].getC();
-//            }
-//            if(word_section_start_bit < data_type_size*8) {
-//                if(flag1)
-//                {
-//                    T y=b;
-//                    x=a;
-//                    x=x<<(word_size-remainder);
-//                    x=x&mask;
-//                    y=y>>data_type_size*8-word_size+remainder;
-//                    y=y&(int(pow(2,(word_size-remainder))))-1;
-//                    x=x|y;
-//                }
-//                else
-//                {
-//                    x=a;
-//                    x=x>>shift;
-//                }
-//            }
-//            else if(word_section_start_bit < data_type_size*16)
-//            {
-//                if(flag2)
-//                {
-//                    T y=c;
-//                    x=b;
-//                    x=x<<(word_size-remainder);
-//                    x=x&mask;
-//                    y=y>>data_type_size*8-word_size+remainder;
-//                    y=y&(int(pow(2,(word_size-remainder))))-1;
-//                    x=x|y;
-//                }
-//                else
-//                {
-//                    x=b;
-//                    x=x>>shift;
-//                }
-//            }
-//            else if(word_section_start_bit < data_type_size*24)
-//            {
-//                if(flag3)
-//                {
-//                    x=c;
-//                    x=x&(int(pow(2,(remainder))))-1;
-//                }
-//                else
-//                {
-//                    x=c;
-//                    x=x>>shift;
-//                }
-//            }
-////            x=x>>((level-1)*word_size);
-////            if(remainder!=0)
-////                x=x>>remainder-1;
-//            x=x&mask;
-////            cout<<x<<"\t";
-//        }
 #pragma omp parallel for
         for (int i = first; i <= last; i++)
         {
             T a,b,c,x;
+            int shift1;
             x=0;
             for (int j = word_size-1; j >= 0; j--) {
                 if(isodd) {
@@ -260,9 +191,10 @@ public:
                     b = arr[i].getY();
                     c = arr[i].getZ();
                 }
-                a = a >> (shift+j);
-                b = b >> (shift+j);
-                c = c >> (shift+j);
+                shift1 = shift+j;
+                a = a >> shift1;
+                b = b >> shift1;
+                c = c >> shift1;
                 a = a & 1;
                 b = b & 1;
                 c = c & 1;
@@ -319,6 +251,7 @@ public:
 #pragma omp parallel for
         for (int i = first; i <= last; i++) {
             T a,b,c,x;
+            int shift1;
             x=0;
             for (int j = word_size - 1; j >= 0; j--) {
                 if(isodd) {
@@ -331,9 +264,10 @@ public:
                     b = arr[i].getY();
                     c = arr[i].getZ();
                 }
-                a = a >> (shift+j);
-                b = b >> (shift+j);
-                c = c >> (shift+j);
+                int shift1 = shift+j;
+                a = a >> shift1;
+                b = b >> shift1;
+                c = c >> shift1;
                 a = a & 1;
                 b = b & 1;
                 c = c & 1;
