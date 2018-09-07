@@ -72,5 +72,81 @@ public:
     {
         return c;
     }
+    bool operator <(Points<T> p2)
+    {
+        T a1 = 0, b1 = 0, c1 = 0, a2 = 0, b2 = 0, c2 = 0;
+        for (int i = 31; i >= 22; i--) {
+            a1 = a1 | ((x >> i) & 1);
+            a1 = a1 << 1;
+            a1 = a1 | ((y >> i) & 1);
+            a1 = a1 << 1;
+            a1 = a1 | ((z >> i) & 1);
+            a1 = a1 << 1;
+            a2 = a2 | ((p2.x >> i) & 1);
+            a2 = a2 << 1;
+            a2 = a2 | ((p2.y >> i) & 1);
+            a2 = a2 << 1;
+            a2 = a2 | ((p2.z >> i) & 1);
+            a2 = a2 << 1;
+        }
+        a1 = a1 | ((x >> 21) & 1);
+        a1 = a1 << 1;
+        a1 = a1 | ((y >> 21) & 1);
+        b1 = b1 | ((z >> 21) & 1);
+        b1 = b1 << 1;
+        a2 = a2 | ((p2.x >> 21) & 1);
+        a2 = a2 << 1;
+        a2 = a2 | ((p2.y >> 21) & 1);
+        b2 = b2 | ((p2.z >> 21) & 1);
+        b2 = b2 << 1;
+        for (int i = 20; i >= 11; i--) {
+            b1 = b1 | ((x >> i) & 1);
+            b1 = b1 << 1;
+            b1 = b1 | ((y >> i) & 1);
+            b1 = b1 << 1;
+            b1 = b1 | ((z >> i) & 1);
+            b1 = b1 << 1;
+            b2 = b2 | ((p2.x >> i) & 1);
+            b2 = b2 << 1;
+            b2 = b2 | ((p2.y >> i) & 1);
+            b2 = b2 << 1;
+            b2 = b2 | ((p2.z >> i) & 1);
+            b2 = b2 << 1;
+        }
+        b1 = b1 | ((x >> 10) & 1);
+        c1 = c1 | ((y >> 10) & 1);
+        c1 = c1 << 1;
+        c1 = c1 | ((z >> 10) & 1);
+        b2 = b2 | ((p2.x >> 10) & 1);
+        c2 = c2 | ((p2.y >> 10) & 1);
+        c2 = c2 << 1;
+        c2 = c2 | ((p2.z >> 10) & 1);
+        for (int i = 9; i >= 0; i--) {
+            c1 = c1 << 1;
+            c1 = c1 | ((x >> i) & 1);
+            c1 = c1 << 1;
+            c1 = c1 | ((y >> i) & 1);
+            c1 = c1 << 1;
+            c1 = c1 | ((z >> i) & 1);
+            c2 = c2 << 1;
+            c2 = c2 | ((p2.x >> i) & 1);
+            c2 = c2 << 1;
+            c2 = c2 | ((p2.y >> i) & 1);
+            c2 = c2 << 1;
+            c2 = c2 | ((p2.z >> i) & 1);
+        }
+        if(a1<a2)
+            return true;
+        else if(a1>a2)
+            return false;
+        else if(b1<b2)
+            return true;
+        else if(b1>b2)
+            return false;
+        else if(c1<c2)
+            return true;
+        else
+            return false;
+    }
 };
 #endif //OCTREESORT_POINTS_H

@@ -16,7 +16,10 @@ int main() {
     cin>>num;
     cout << "Enter the word size (preferably 1 to 5): ";
     cin >> user_word_size;
+    omp_set_max_active_levels(3);
 
+//    cout<<omp_get_thread_limit()<<endl;
+    //cout << omp_get_max_threads();
     omp_set_nested(1);
     RadixSort<unsigned int> *obj=new RadixSort<unsigned int>(n, num, user_word_size);
 //    obj->print();

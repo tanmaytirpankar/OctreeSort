@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/tanmay/CLionProjects/OctreeSort/main.cpp" "/home/tanmay/CLionProjects/OctreeSort/cmake-build-debug/CMakeFiles/OctreeSort.dir/main.cpp.o"
+  "/home/tanmaypoke/CLionProjects/OctreeSort/main.cpp" "/home/tanmaypoke/CLionProjects/OctreeSort/cmake-build-debug/CMakeFiles/OctreeSort.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

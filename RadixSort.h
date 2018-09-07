@@ -121,20 +121,42 @@ public:
             cout << "(" << arr1[i].getX() << "," << arr1[i].getY() << "," << arr1[i].getZ() << "),";
         }
     }
+    static bool compare1(Points<T> p1,Points<T> p2)
+    {
+        return p1 < p2;
+    }
     void Sort(int first, int last, int lvls)
     {
         unsigned int buck_num_elements = last-first+1;
         //Gap for switching to std:sort from radix sort code
-        if(buck_num_elements<=1 || lvls>=level-1)
+        if(buck_num_elements<=20 || lvls>=level-1)
         {
-            if(buck_num_elements==1) {
-                if (lvls % 2 == 1)
-                    arr[first] = arr1[first];
-                else
-                    arr1[first] = arr[first];
+            if (lvls % 2 == 1) {
+                sort(&arr1[first], &arr1[last + 1], compare1);
+                for (int i = first; i <=last ; i++) {
+                    arr[i] = arr1[i];
+                }
+
+            }
+            else {
+                sort(&arr[first], &arr[last + 1], compare1);
+                for (int i = first; i <=last ; i++) {
+                    arr1[i] = arr[i];
+                }
             }
             return ;
         }
+//        cout<<lvls<<","<<omp_get_thread_num()<<","<<omp_get_level()<<","<<omp_get_num_threads()<<endl;
+//        if(buck_num_elements<=1 || lvls>=level-1)
+//        {
+//            if(buck_num_elements==1) {
+//                if (lvls % 2 == 1)
+//                    arr[first] = arr1[first];
+//                else
+//                    arr1[first] = arr[first];
+//            }
+//            return ;
+//        }
         bool isodd;
         if(lvls % 2 == 1)
             isodd = true;
@@ -144,7 +166,7 @@ public:
         if(shift < 0)
             shift=0;
 //        int data_type_size = sizeof(arr[0].getX());
-        unsigned int buckets = int(pow(2,actual_word_size));
+        unsigned int buckets = (1 << actual_word_size);
         vector<vector<unsigned int>> count(num_threads);
         vector<vector<unsigned int>> position(num_threads);
         for (int l = 0; l < num_threads; l++) {
@@ -180,30 +202,24 @@ public:
             T a,b,c,x;
             int shift1;
             x=0;
+            if(isodd) {
+                a = arr1[i].getX();
+                b = arr1[i].getY();
+                c = arr1[i].getZ();
+            }
+            else {
+                a = arr[i].getX();
+                b = arr[i].getY();
+                c = arr[i].getZ();
+            }
             for (int j = word_size-1; j >= 0; j--) {
-                if(isodd) {
-                    a = arr1[i].getX();
-                    b = arr1[i].getY();
-                    c = arr1[i].getZ();
-                }
-                else {
-                    a = arr[i].getX();
-                    b = arr[i].getY();
-                    c = arr[i].getZ();
-                }
                 shift1 = shift+j;
-                a = a >> shift1;
-                b = b >> shift1;
-                c = c >> shift1;
-                a = a & 1;
-                b = b & 1;
-                c = c & 1;
                 x = x << 1;
-                x = x | a;
+                x = x | ((a >> shift1) & 1);
                 x = x << 1;
-                x = x | b;
+                x = x | ((b >> shift1) & 1);
                 x = x << 1;
-                x = x | c;
+                x = x | ((c >> shift1) & 1);
             }
             count[omp_get_thread_num()][x]++;
 //            x=x>>((level-1)*word_size);
@@ -253,30 +269,24 @@ public:
             T a,b,c,x;
             int shift1;
             x=0;
+            if(isodd) {
+                a = arr1[i].getX();
+                b = arr1[i].getY();
+                c = arr1[i].getZ();
+            }
+            else {
+                a = arr[i].getX();
+                b = arr[i].getY();
+                c = arr[i].getZ();
+            }
             for (int j = word_size - 1; j >= 0; j--) {
-                if(isodd) {
-                    a = arr1[i].getX();
-                    b = arr1[i].getY();
-                    c = arr1[i].getZ();
-                }
-                else {
-                    a = arr[i].getX();
-                    b = arr[i].getY();
-                    c = arr[i].getZ();
-                }
-                int shift1 = shift+j;
-                a = a >> shift1;
-                b = b >> shift1;
-                c = c >> shift1;
-                a = a & 1;
-                b = b & 1;
-                c = c & 1;
+                shift1 = shift+j;
                 x = x << 1;
-                x = x | a;
+                x = x | ((a >> shift1) & 1);
                 x = x << 1;
-                x = x | b;
+                x = x | ((b >> shift1) & 1);
                 x = x << 1;
-                x = x | c;
+                x = x | ((c >> shift1) & 1);
             }
             if(isodd)
                 arr[position[omp_get_thread_num()][x]]=arr1[i];
@@ -363,168 +373,7 @@ public:
         }
         return true;
     }
-/*    void Sort(int first, int last, int level)
-    {
-        int num_elements=last-first+1;
-        if(num_elements<=4096)
-        {
-            //insertionSort(first,last,level-1);
-            std::sort(&arr[first],&arr[last+1]);
-            return ;
-        }
-        if(level<1)
-        {
-            return ;
-        }
-        int buckets=int(pow(2,word_size));
-        vector<vector<unsigned int>> count(num_threads);
-        vector<vector<unsigned int>> position(num_threads);
-        for (int l = 0; l < num_threads; ++l) {
-            count[l] = vector<unsigned int>(buckets);
-            position[l]=vector<unsigned int>(buckets);
-        }
-//        if(num_elements<=1 || level<1)
-//        {
-//            return ;
-//        }
 
-        int position1[buckets];
-        //vector<T> temp(num_elements);
-        chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
-        omp_set_num_threads(num_threads);
-#pragma omp parallel
-        for (int j = 0; j < buckets; j++) {
-            position1[j]=0;
-            count[omp_get_thread_num()][j]=0;
-            position[omp_get_thread_num()][j]=0;
-        }
-        chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-        auto duration = chrono::duration_cast<chrono::microseconds>( t2 - t1 ).count();
-
-        //cout <<"The time taken for initialization is "<<duration <<" microseconds"<<endl;
-
-        t1 = chrono::high_resolution_clock::now();
-        int remainder= (sizeof(arr[0])*8)%word_size;
-        int shift=((level-1)*word_size)-(word_size-remainder);
-        int mask=int(pow(2,word_size)-1);
-        omp_set_num_threads(num_threads);
-//        cout<<"first: "<<first<<" last: "<<last<<" sizeof(count): "<<count.size()<<" sizeof(count[0])"<<count[0].size()<<endl;
-#pragma omp parallel for
-        for (int i = first; i <= last; i++)
-        {
-            T x;
-            //temp[i-first]=arr[i];
-            if(level%2==1)
-                x=arr1[i];
-            else
-                x=arr[i];
-            if(level>1)
-                x=x>>shift;
-//            x=x>>((level-1)*word_size);
-//            if(remainder!=0)
-//                x=x>>remainder-1;
-            x=x&mask;
-            count[omp_get_thread_num()][x]++;
-        }
-        //cout<<endl<<"Shift is "<<shift<<endl;
-        t2 = chrono::high_resolution_clock::now();
-        duration = chrono::duration_cast<chrono::microseconds>( t2 - t1 ).count();
-
-        //cout<<"The time taken for calculating counts is "<<duration <<" microseconds"<<endl;
-//        cout<<"Values in count:"<<endl;
-//        for(int i = 0; i < num_threads; i++){
-//            for(int j = 0; j < buckets; j++){
-//                cout<<count[i][j]<<" ";
-//            }
-//            cout<<endl;
-//        }
-        t1 = chrono::high_resolution_clock::now();
-//        position1[0]=position[0][0]=first;
-//        int prev_buc=0;
-//        for (int buc = 0; buc < 8; buc++) {
-//            for (int tid = 0; tid < num_threads; tid++) {
-//                if (tid==0)
-//                    position1[buc+1]=position[tid][buc]=prev_buc;
-//                else
-//                    position[tid][buc]=position[tid-1][buc]+count[tid-1][buc];
-//            }
-//            prev_buc=position[num_threads-1][buc]+count[num_threads-1][buc];
-//        }
-
-        position1[0]=position[0][0]=first;
-        for (int buc = 0; buc < buckets; buc++) {
-            for (int tid = 1; tid < num_threads; tid++) {
-                if(tid==0&&buc==0)
-                {}
-                else
-                {
-                    position[tid][buc]=position[tid-1][buc]+count[tid-1][buc];
-                }
-            }
-            if(buc<buckets-1)
-                position1[buc+1]=position[0][buc+1]=position[num_threads-1][buc]+count[num_threads-1][buc];
-        }
-
-//        cout<<"Positions in position at depth "<<level<<" is:"<<endl;
-//        for(int i = 0; i < num_threads; i++){
-//            for(int j = 0; j < buckets; j++){
-//                cout<<position[i][j]<<" ";
-//            }
-//            cout<<endl;
-//        }
-
-
-        omp_set_num_threads(num_threads);
-#pragma omp parallel for
-        for (int i = first; i <= last; i++) {
-            T x;
-            if(level%2==1)
-                x = arr1[i];
-            else
-                x = arr[i];
-            if(level>1)
-                x=x>>shift;
-//            x=x>>((level-1)*word_size);
-//            if(remainder!=0)
-//                x=x>>remainder-1;
-            x=x&mask;
-            if(level%2==1)
-                arr[position[omp_get_thread_num()][x]]=arr1[i];
-            else
-                arr1[position[omp_get_thread_num()][x]]=arr[i];
-            position[omp_get_thread_num()][x]++;
-        }
-//        temp.clear();
-//        temp.shrink_to_fit();
-        t2 = chrono::high_resolution_clock::now();
-        duration = chrono::duration_cast<chrono::microseconds>( t2 - t1 ).count();
-
-        //cout<<"The time taken for final sorting is "<<duration <<" microseconds"<<endl;
-
-        //cout<<"Recursion number "<<level<<endl;
-        //print();
-
-        omp_set_num_threads(num_threads);
-#pragma omp parallel for
-        for (int i = 0; i < buckets; i++)  {
-            int begin=position1[i];
-            int ending;
-            if(i!=buckets-1)
-                ending=position1[i+1]-1;
-            else
-                ending=last;
-            Sort(begin,ending,level-1);
-        }
-    }
-    void sorting()
-    {
-        int lvls=0;
-        lvls=(sizeof(arr[0])*8)/word_size+1;
-        //cout<<lvls;
-        //vector<Points<T>> arr1(n);
-        this->Sort(0,n-1,lvls);
-        //print();
-    }*/
 };
 
 

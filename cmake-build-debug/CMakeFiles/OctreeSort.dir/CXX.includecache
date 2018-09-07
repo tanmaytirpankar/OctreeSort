@@ -6,13 +6,13 @@
 
 #IncludeRegexTransform: 
 
-/home/tanmay/CLionProjects/OctreeSort/Points.h
+/home/tanmaypoke/CLionProjects/OctreeSort/Points.h
 iostream
 -
 
-/home/tanmay/CLionProjects/OctreeSort/RadixSort.h
+/home/tanmaypoke/CLionProjects/OctreeSort/RadixSort.h
 Points.h
-/home/tanmay/CLionProjects/OctreeSort/Points.h
+/home/tanmaypoke/CLionProjects/OctreeSort/Points.h
 vector
 -
 iostream
@@ -32,11 +32,11 @@ math.h
 algorithm
 -
 
-/home/tanmay/CLionProjects/OctreeSort/main.cpp
+/home/tanmaypoke/CLionProjects/OctreeSort/main.cpp
 iostream
 -
 RadixSort.h
-/home/tanmay/CLionProjects/OctreeSort/RadixSort.h
+/home/tanmaypoke/CLionProjects/OctreeSort/RadixSort.h
 fstream
 -
 string

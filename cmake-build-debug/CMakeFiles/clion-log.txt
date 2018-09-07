@@ -1,7 +1,21 @@
-/home/tanmay/clion-2018.1.3/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/tanmay/CLionProjects/OctreeSort
--- Found OpenMP_C: -fopenmp  
--- Found OpenMP_CXX: -fopenmp  
--- Found OpenMP: TRUE   
+/home/tanmaypoke/clion-2018.1.3/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/tanmaypoke/CLionProjects/OctreeSort
+-- The C compiler identification is GNU 5.4.0
+-- The CXX compiler identification is GNU 5.4.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found OpenMP_C: -fopenmp (found version "4.0") 
+-- Found OpenMP_CXX: -fopenmp (found version "4.0") 
+-- Found OpenMP: TRUE (found version "4.0")  
 -- Configuring done
 -- Generating done
--- Build files have been written to: /home/tanmay/CLionProjects/OctreeSort/cmake-build-debug
+-- Build files have been written to: /home/tanmaypoke/CLionProjects/OctreeSort/cmake-build-debug
