@@ -5,18 +5,34 @@
 #include <ctime>
 #include <cmath>
 #include <chrono>
+#include <getopt.h>
 using namespace std;
-int main() {
+int main(int argc, char **argv) {
     unsigned int n;
-    int num,buck,user_word_size;
-    cout<<"Enter the number of points: ";
-    cin>>n;
-    cout<<"Number of points "<<n<<endl;
-    cout<<"Enter the number of threads: ";
-    cin>>num;
-    cout << "Enter the word size (preferably 1 to 5): ";
-    cin >> user_word_size;
-    omp_set_max_active_levels(3);
+    int num,user_word_size,max_levels;
+    int c;
+    while ((c = getopt (argc, argv, "p:t:w:l:")) != -1)
+        switch (c)
+        {
+            case 'p':
+                n = atoi(optarg);
+                break;
+            case 't':
+                num = atoi(optarg);
+                break;
+            case 'w':
+                user_word_size = atoi(optarg);
+                break;
+            case 'l':
+                max_levels = atoi(optarg);
+                break;
+            default:
+                abort ();
+        }
+    cout<<"Number of points "<< n << " Number of threads " <<num<< " Word size " <<user_word_size<< " Levels "<<max_levels<<endl;
+
+    omp_set_max_active_levels(max_levels);
+
 
 //    cout<<omp_get_thread_limit()<<endl;
     //cout << omp_get_max_threads();
