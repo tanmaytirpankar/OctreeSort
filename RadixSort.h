@@ -70,12 +70,12 @@ public:
         for (int i = 0; i < num_elements; i++)
         {
             int num_length = sizeof(arr[0].getX())*8;
-            int x=arr[i].getX();
-            int y=arr[i].getY();
-            int z=arr[i].getZ();
-            int a=arr[i].getA();
-            int b=arr[i].getB();
-            int c=arr[i].getC();
+            T x=arr[i].getX();
+            T y=arr[i].getY();
+            T z=arr[i].getZ();
+            T a=arr[i].getA();
+            T b=arr[i].getB();
+            T c=arr[i].getC();
             cout<<"("<<arr[i].getX()<<","<<arr[i].getY()<<","<<arr[i].getZ()<<"),";
             for (int j = 0; j < num_length; j++) {
                 x=arr[i].getX();
