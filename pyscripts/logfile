@@ -2,35 +2,44 @@ Number of points 10000000 Number of threads 2 Word size 1 Levels 3
 List1 is sorted.
 List2 is sorted.
 
-The time taken is 8870298 microseconds
+The time taken is 8619140 microseconds
 Number of points 10000000 Number of threads 2 Word size 1 Levels 4
 List1 is sorted.
 List2 is sorted.
 
-The time taken is 8837050 microseconds
+The time taken is 8623218 microseconds
 Number of points 10000000 Number of threads 2 Word size 1 Levels 5
 List1 is sorted.
 List2 is sorted.
 
-The time taken is 8714485 microseconds
+The time taken is 8612615 microseconds
 Number of points 10000000 Number of threads 2 Word size 1 Levels 6
 List1 is sorted.
 List2 is sorted.
 
-The time taken is 8953221 microseconds
+The time taken is 8897243 microseconds
 Number of points 10000000 Number of threads 3 Word size 1 Levels 3
 List1 is sorted.
 List2 is sorted.
 
-The time taken is 8712172 microseconds
+The time taken is 8654812 microseconds
 Number of points 10000000 Number of threads 3 Word size 1 Levels 4
 List1 is sorted.
 List2 is sorted.
 
-The time taken is 9289916 microseconds
+The time taken is 8656400 microseconds
 Number of points 10000000 Number of threads 4 Word size 1 Levels 2
 List1 is sorted.
 List2 is sorted.
 
-The time taken is 8725199 microseconds
+The time taken is 11471935 microseconds
 Number of points 10000000 Number of threads 4 Word size 1 Levels 3
+List1 is sorted.
+List2 is sorted.
+
+The time taken is 8681264 microseconds
+Number of points 10000000 Number of threads 5 Word size 1 Levels 2
+List1 is sorted.
+List2 is sorted.
+
+The time taken is 9314408 microseconds

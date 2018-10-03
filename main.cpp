@@ -11,6 +11,7 @@ int main(int argc, char **argv) {
     unsigned int n;
     int num,user_word_size,max_levels;
     int c;
+    //Loop used to assign parameters based on parameter name. Used for python scripts.
     while ((c = getopt (argc, argv, "p:t:w:l:")) != -1)
         switch (c)
         {

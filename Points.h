@@ -9,6 +9,8 @@
 using namespace std;
 template <class T>
 class Points{
+    //x,y,z -> Coordinates of point.
+    //a,b,c -> interleaved numbers by mixing x,y,z bits.
     T x,y,z,a,b,c;
 public:
     Points()
@@ -17,6 +19,7 @@ public:
         this->y=0;
         this->z=0;
     }
+    //This constructor is used to generate the interleaved numbers. Interleaved numbers a,b,c are only used for checking final list.
     Points(T x,T y, T z)
     {
         this->x=x;
@@ -72,6 +75,7 @@ public:
     {
         return c;
     }
+    //Overloaded < operator to work on Points object for std:sort.
     bool operator <(Points<T> p2)
     {
         T a1 = 0, b1 = 0, c1 = 0, a2 = 0, b2 = 0, c2 = 0;

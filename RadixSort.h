@@ -17,8 +17,14 @@
 using namespace std;
 template <class T>
 class RadixSort {
+    //Primary and Secondary buffers for the list of points.
     vector <Points<T>> arr,arr1;
+    //num_threads -> Number of threads to execute each loop with.
+    //word_size -> number of bits to use from each co-ordinate of a point for bucketing purpose.
+    //actual_word_size -> The number of bits used for bucketing = word_size*3;
+    //level -> The max depth that the algorithm can go to after which the bits are to bucket are over and function returns.
     int num_threads, word_size, actual_word_size, level;
+    //Number of points to sort.
     unsigned int num_elements;
 public:
     RadixSort(unsigned int n, int num, int user_word_size)
@@ -28,6 +34,7 @@ public:
         actual_word_size=user_word_size*3;
         this->num_threads=num;
 
+        //Section of code if input is to be taken from a .csv file.
         /*ifstream in;
         string line;
         string filename = "exampleOutput5.csv";
@@ -48,6 +55,7 @@ public:
         srand(2);
         omp_set_num_threads(num_threads);
         unsigned int x,y,z;
+        //Section where random numbers are assigned to points.
 #pragma omp parallel for
         for (int i = 0; i < num_elements; i++) {
 //            cout<<"Point "<<i<<":"<<endl;
@@ -65,6 +73,7 @@ public:
 //        print1();
 //        cout<<endl;
     }
+    //This function prints all points of list and their transformed interleaved bit versions in binary form.
     void print()
     {
         for (int i = 0; i < num_elements; i++)
@@ -115,20 +124,23 @@ public:
             cout<<endl;
         }
     }
+    //This function prints all points in (x,y,z) form.
     void print1()
     {
         for (int i = 0; i < num_elements; i++) {
             cout << "(" << arr1[i].getX() << "," << arr1[i].getY() << "," << arr1[i].getZ() << "),";
         }
     }
+    //This function is used to pass on to std:sort function to compare two <Points.h> objects.
     static bool compare1(Points<T> p1,Points<T> p2)
     {
         return p1 < p2;
     }
+    //The recursive Sort function taking input as index of first and last element of the list to sort and level number.
     void Sort(int first, int last, int lvls)
     {
         unsigned int buck_num_elements = last-first+1;
-        //Gap for switching to std:sort from radix sort code
+        //Switching to sort function if level or number of elements threshold is crossed.
         if(buck_num_elements<=20 || lvls>=level-1)
         {
             if (lvls % 2 == 1) {
@@ -146,6 +158,7 @@ public:
             }
             return ;
         }
+        //Use this section to test solely Radix Sort without the std:sort function.
 //        cout<<lvls<<","<<omp_get_thread_num()<<","<<omp_get_level()<<","<<omp_get_num_threads()<<endl;
 //        if(buck_num_elements<=1 || lvls>=level-1)
 //        {
@@ -157,22 +170,28 @@ public:
 //            }
 //            return ;
 //        }
+        //Boolean variable to determine if current level is even or odd.
         bool isodd;
         if(lvls % 2 == 1)
             isodd = true;
         else
             isodd = false;
+        //Calculates the amount by which to right shift the co-ordinates to get required bits on LSB side.
         int shift=(sizeof(arr[0].getX())*8)-(lvls+1)*word_size;
         if(shift < 0)
             shift=0;
 //        int data_type_size = sizeof(arr[0].getX());
+        //Calculating number of buckets depending on total bits for bucketing = 2^actual_word_size. Can be done by shifting 1.
         unsigned int buckets = (1 << actual_word_size);
+        //count -> Matrix of num_threads*buckets which contains the count of elements in particular bucket for count sort.
         vector<vector<unsigned int>> count(num_threads);
+        //position -> Matrix of num_threads*buckets which determines where a particular thread will write an element to.
         vector<vector<unsigned int>> position(num_threads);
         for (int l = 0; l < num_threads; l++) {
             count[l] = vector<unsigned int>(buckets);
             position[l] = vector<unsigned int>(buckets);
         }
+        //position1 -> An array to determine where the buckets start in the array to decide sections for next level.
         unsigned int position1[buckets];
         chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
 
@@ -195,7 +214,7 @@ public:
 //        cout<<"Flags: "<<flag1<<","<<flag2<<","<<flag3<<endl;
 //        cout<<"first: "<<first<<" last: "<<last<<" sizeof(count): "<<count.size()<<" sizeof(count[0])"<<count[0].size()<<endl;
 //        cout<<"                                                                    ";
-
+        //This section determines the bucket a point will go into and increments the corresponding count value.
 #pragma omp parallel for
         for (int i = first; i <= last; i++)
         {
@@ -212,6 +231,7 @@ public:
                 b = arr[i].getY();
                 c = arr[i].getZ();
             }
+            //This loop generates the bucketing number to determine the bucket for a point.
             for (int j = word_size-1; j >= 0; j--) {
                 shift1 = shift+j;
                 x = x << 1;
@@ -234,6 +254,7 @@ public:
         duration = chrono::duration_cast<chrono::microseconds>( t2 - t1 ).count();
 
         //cout<<"The time taken for calculating counts is "<<duration <<" microseconds"<<endl;
+          //Displays values of count matrix.
 //        cout<<"Values in count:"<<endl;
 //        for(int i = 0; i < num_threads; i++){
 //            for(int j = 0; j < buckets; j++){
@@ -243,6 +264,7 @@ public:
 //
 //        }
         t1 = chrono::high_resolution_clock::now();
+        //Prefix Sum Scan on count matrix to determine positions of each bucket for each thread.
         position1[0]=position[0][0]=first;
         for (int buc = 0; buc < buckets; buc++) {
             for (int tid = 1; tid < num_threads; tid++) {
@@ -256,7 +278,7 @@ public:
             if(buc<buckets-1)
                 position1[buc+1]=position[0][buc+1]=position[num_threads-1][buc]+count[num_threads-1][buc];
         }
-
+        //Displays values in position matrix.
 //        cout<<"Positions in position at depth "<<lvls<<" is:"<<endl;
 //        for(int i = 0; i < num_threads; i++){
 //            for(int j = 0; j < buckets; j++){
@@ -264,6 +286,7 @@ public:
 //            }
 //            cout<<endl;
 //        }
+        //This section is used to shift and sort the points depending on and position matrix. Shifting dont between the 2 buffers depending on level.
 #pragma omp parallel for
         for (int i = first; i <= last; i++) {
             T a,b,c,x;
@@ -279,6 +302,7 @@ public:
                 b = arr[i].getY();
                 c = arr[i].getZ();
             }
+            //Section for determining the bucketing number again to check which position to shift this number to based on position matrix.
             for (int j = word_size - 1; j >= 0; j--) {
                 shift1 = shift+j;
                 x = x << 1;
@@ -311,6 +335,8 @@ public:
 //            print();
 //        else
 //            print1();
+
+        //Section to invoke Sort functions recursively for each bucket.
 #pragma omp parallel for
         for (int i = 0; i < buckets; i++)  {
             int begin=position1[i];
@@ -322,6 +348,7 @@ public:
             Sort(begin,ending,lvls+1);
         }
     }
+    //This function is the head of the recursive function.
     void sorting()
     {
         int lvls=0;
@@ -337,6 +364,7 @@ public:
         else
             cout<<"List2 is not sorted.";
     }
+    //Compares the interleaved numbers a,b,c of 2 points to determine the greater one. Only used for checking if list is sorted correctly.
     bool compare(Points<T> num1,Points<T> num2)
     {
         if(num1.getA()<num2.getA())
@@ -352,6 +380,7 @@ public:
         else
             return false;
     }
+    //This function is used to check whether primary buffer has been sorted correctly by using the above compare function.
     bool check()
     {
         for (int i = 0; i < num_elements-1; i++) {
@@ -365,6 +394,7 @@ public:
         }
         return true;
     }
+    //This function is used to check whether the secondary buffer has been sorted correctly by using above compare function.
     bool check1()
     {
         for (int i = 0; i < num_elements-1; i++) {
